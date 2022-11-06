@@ -105,7 +105,6 @@ public class Chatbox
 			else
 			{
         if (unknown < 5){
-          System.out.println(unknown);
           response = getRandomResponse();
         }
         else {
