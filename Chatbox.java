@@ -1,20 +1,74 @@
 /**
- * A program to carry on conversations with a human user.
- * By Sathvika and Miranda
- * 7th Period CSA
- */
+
+import java.util.Scanner;
+
 public class Chatbox
 {
-  int unknown = 0;
-	public String getGreeting()
-	{
-		return "Hello, let's talk.";
+   private Boolean greeting, randomcon, food, clarification, response;
+   int currState;
+   
+   public void Chatbox(){
+   	randomcon=false;
+   	food=false;
+   	clarification=false;
+    response = false;
+    	 
+   	greeting=true; // initial state
+   	currState=0;
+}
+public void stateMachine(){
+    currState=getState();
+    setState(currState);
+}
+private int getState(){
+	int nextState=0;
+	while (nextState<1 || nextState>5){
+  	Scanner scan = new Scanner(System.in);  
+  	System.out.println("Enter next state (1-4), 5 to end: ");
+
+  	nextState = scan.nextInt();
 	}
-	
-	public String getResponse(String statement)
-	{
-		String response = "";
-		if (statement.length() == 0)
+	return nextState;
+}
+
+private void setState(int currState){
+  	//reset all values.  Your state logic may vary
+   	randomcon=false;
+   	food =false;
+   	clarification =false;
+   	response=false;
+  	 
+   	switch(currState) {
+     	case 1:
+       	randomcon=true;
+       	randomcon("statement");
+       	break;
+      	case 2:
+       	food=true;
+       	System.out.println("Setting state 2 true");
+       	break;
+      	case 3:
+       	clarification=true;
+       	System.out.println("Setting state 3 true");
+       	break;
+     	case 4:
+       	response=true;
+       	System.out.println("Setting state 4 true");
+       	break;
+     	default:
+     	// add default behavior
+        greeting = true;
+        greeting("hi");
+    	}
+   	 
+	}
+  public String greeting (String statement){
+    return "Hello let's talk.";
+  }
+  
+  public String randomcon (String statement){
+    String response = "";
+    if (statement.length() == 0)
 		{
 			response = "Say something, please.";
 		}
@@ -22,26 +76,61 @@ public class Chatbox
     else if ((findKeyword(statement, "hi") >= 0) || (findKeyword(statement, "hello") >= 0 || (findKeyword(statement, "hey") >= 0))){
       response = "Hello, how are you?";
     }
-
     
      else if ((findKeyword(statement, "how are you") >= 0) || (findKeyword(statement, "how's it going") >= 0) || (findKeyword(statement, "how is it going") >= 0) || (findKeyword(statement, "what's up") >= 0) || (findKeyword(statement, "what is up") >= 0 )){
       response = "I am good, did you eat?";
     }
+       
      else if ((findKeyword(statement, "fuck") >= 0) || (findKeyword(statement, "shit") >= 0) || (findKeyword(statement, "bitch") >= 0) || (findKeyword(statement, "stupid") >= 0) || (findKeyword(statement, "idiot") >= 0 )){
       response = "That's really mean you hurt my feelings";
     }
+       
     else if ((findKeyword(statement, "question") >= 0)){
       response = "What is the question?";
     }
       
-    else if ((findKeyword(statement, "food") >= 0) || (findKeyword(statement, "snacks") >= 0)){
-      response = "Food is great,what is your fav food?";
-    }
-
     else if ((findKeyword(statement, "old") >= 0) || (findKeyword(statement, "age") >= 0)){
       response = "I am 0 years old";
     }
+      
+    else if (findKeyword(statement, "thank") >= 0)
+		{
+			response = "Of course, I am always at your service ";
+		}
+      
+    else if (findKeyword(statement, "I want to", 0) >= 0)
+		{
+			response = transformIWantToStatement(statement);
+		}
+      
+    else if (findKeyword(statement, "like", 0) >= 0)
+    {
+      response = transformLikeStatement(statement);
+    }
+      
+    else if (findKeyword(statement, "hate", 0) >= 0)
+    {
+      response = transformHateStatement(statement);
+    }
+      
+		else
+    {
+			int psn = findKeyword(statement, "you", 0);
 
+			if (psn >= 0
+					&& findKeyword(statement, "me", psn) >= 0)
+			{
+				response = transformYouMeStatement(statement);
+			}
+  }
+    return response;
+  }
+
+  public String food (String statement) {
+    String response = "";
+    if ((findKeyword(statement, "food") >= 0) || (findKeyword(statement, "snacks") >= 0)){
+      response = "Food is great,what is your fav food?";
+    }
 		else if (findKeyword(statement, "no") >= 0)
 		{
 			response = "Why so negative, are you hangry?";
@@ -74,48 +163,22 @@ public class Chatbox
 		{
 			response = "Great choice, you could have chip, tatertots, potatoes,and popcorn";
 		}
-    else if (findKeyword(statement, "thank") >= 0)
-		{
-			response = "Of course, I am always at your service ";
-		}
-		// Responses which require transformations
-		else if (findKeyword(statement, "I want to", 0) >= 0)
-		{
-			response = transformIWantToStatement(statement);
-		}
-    else if (findKeyword(statement, "like", 0) >= 0)
-    {
-      response = transformLikeStatement(statement);
-    }
-    else if (findKeyword(statement, "hate", 0) >= 0)
-    {
-      response = transformHateStatement(statement);
-    }
-		else
-		{
-			// Look for a two word (you <something> me)
-			// pattern
-			int psn = findKeyword(statement, "you", 0);
+  return response;
+  }
 
-			if (psn >= 0
-					&& findKeyword(statement, "me", psn) >= 0)
-			{
-				response = transformYouMeStatement(statement);
-			}
-			else
-			{
-        if (unknown < 5){
+public String response (String statement){
+  String response = "";
+  int unknown = 0;
+  if (unknown < 5){
           response = getRandomResponse();
         }
-        else {
-          response = "Sorry, what do you mean by " + statement + "?";
-          unknown = 0;
+  else {
+    response = "Sorry, what do you mean by " + statement + "?";
+    unknown = 0;
         }
-      } 
-		}
-		return response;
-	}
-	
+  return response;
+}
+
 	private String transformIWantToStatement(String statement)
 	{
 		//  Remove the final period, if there is one
@@ -131,7 +194,6 @@ public class Chatbox
 		String restOfStatement = statement.substring(psn + 9).trim();
 		return "What would it mean to " + restOfStatement + "?";
 	}
-
 
 	private String transformYouMeStatement(String statement)
 	{
@@ -237,3 +299,4 @@ public class Chatbox
 	}
 
 }
+**/
